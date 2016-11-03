@@ -1,0 +1,47 @@
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="common.pay.sdk">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <application
+        android:allowBackup="true"
+        android:label="@string/app_name"
+        android:supportsRtl="true">
+        <activity
+            android:name=".PayEntryActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            />
+        <!-- 支付宝支付所需要的组件 -->
+        <activity
+            android:name="com.alipay.sdk.app.H5PayActivity"
+            android:configChanges="orientation|keyboardHidden|navigation"
+            android:exported="false"
+            android:screenOrientation="behind" >
+        </activity>
+        <activity
+            android:name="com.alipay.sdk.auth.AuthActivity"
+            android:configChanges="orientation|keyboardHidden|navigation"
+            android:exported="false"
+            android:screenOrientation="behind" >
+        </activity>
+        <!-- 微信需要的组件 -->
+        <!--<activity-->
+            <!--android:name=".wxapi.WXPayEntryActivity"-->
+            <!--android:exported="true"-->
+            <!--android:launchMode="singleTop"-->
+            <!--android:screenOrientation="portrait"-->
+            <!--/>-->
+        <activity
+            android:name=".wxapi.WXEntryActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            />
+    </application>
+
+</manifest>
