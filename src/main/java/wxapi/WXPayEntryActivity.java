@@ -1,4 +1,4 @@
-package common.pay.sdk.wxapi;
+package wxapi;
 
 import common.pay.sdk.PayEntryActivity;
 

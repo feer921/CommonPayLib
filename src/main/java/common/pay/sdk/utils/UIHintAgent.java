@@ -6,13 +6,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.os.Handler;
+
 import cn.pedant.SweetAlert.SweetAlertDialog;
 import common.pay.sdk.R;
 
 
 /**
  * UI交互过程一些提醒类型的交互代理者
- * 里面的一些通用交互控件都呆以自定义再对应的替换
+ * 里面的一些通用交互控件都可以自定义再对应的替换
  * 2015年9月7日-下午7:49:21
  * @author lifei
  * 注：本类有删减，完整版本
@@ -175,8 +176,14 @@ public class UIHintAgent {
             sweetLoadingDialog.dismissWithAnimation();
         }
     }
+
+    public void dismissAlertDialog() {
+        if (sweetAlertDialog != null) {
+            sweetAlertDialog.dismissWithAnimation();
+        }
+    }
     public boolean isLoadingDialogShowing(){
-        return sweetLoadingDialog!= null && sweetLoadingDialog.isShowing();
+        return sweetLoadingDialog != null && sweetLoadingDialog.isShowing();
     }
 
 
@@ -207,8 +214,7 @@ public class UIHintAgent {
     }
 
     public int getHintDialogInCase() {
-        //modified 2016-10-31 现在统一返回该变量，不管是在sweetAlertDialog中还是在hintDialog中
-        //hintDialogInWhichCase 该变量会在hintDialog以及sweetAlertDialog show时赋值当前的Case值
+        //hintDialogInWhichCase 该变量会在sweetAlertDialog show时赋值当前的Case值
         return hintDialogInWhichCase;
     }
 
@@ -246,6 +252,10 @@ public class UIHintAgent {
     public void sweetHintFail(String failHintInfo, String confimInfo, int sweetDialogInCase) {
         sweetDialogHint(failHintInfo, null, null, confimInfo, sweetDialogInCase, SweetAlertDialog.ERROR_TYPE);
     }
+
+    public void sweetNormalHint(String titleInfo, String hintInfo, String cancelBtnInfo, String confimBtnInfo, int curDialogInCase) {
+        sweetDialogHint(titleInfo, hintInfo, cancelBtnInfo, confimBtnInfo, curDialogInCase, SweetAlertDialog.NORMAL_TYPE);
+    }
     public void sweetDialogHint(String titleInfo, String hintInfo, String cancelInfo, String confimInfo, int curDialogInCase,int sweetDialogContentCase) {
         if (!isOwnerVisible) {
             return;
@@ -259,7 +269,11 @@ public class UIHintAgent {
                 .setConfirmText(confimInfo)
                 .setConfirmClickListener(comfimBtnClickListener)
                 .changeAlertType(sweetDialogContentCase);
-        sweetAlertDialog.showCancelButton(!Util.isEmpty(cancelInfo));
+        boolean needShowCancelBtn = !Util.isEmpty(cancelInfo);
+        sweetAlertDialog.showCancelButton(needShowCancelBtn);
+        if (needShowCancelBtn) {
+            sweetAlertDialog.setCancelClickListener(cancelBtnClickListener);
+        }
         sweetAlertDialog.showContentText(!Util.isEmpty(hintInfo));
         sweetAlertDialog.show();
     }
@@ -303,7 +317,15 @@ public class UIHintAgent {
         @Override
         public void onClick(SweetAlertDialog sweetAlertDialog) {
             if (mClickListenerForDialog != null) {
-                mClickListenerForDialog.onClick(sweetAlertDialog,DialogInterface.BUTTON_POSITIVE);
+                mClickListenerForDialog.onClick(sweetAlertDialog,DialogInterface.BUTTON_POSITIVE);            }
+        }
+    };
+
+    private SweetAlertDialog.OnSweetClickListener cancelBtnClickListener = new SweetAlertDialog.OnSweetClickListener() {
+        @Override
+        public void onClick(SweetAlertDialog sweetAlertDialog) {
+            if (mClickListenerForDialog != null) {
+                mClickListenerForDialog.onClick(sweetAlertDialog, DialogInterface.BUTTON_NEGATIVE);
             }
         }
     };

@@ -14,7 +14,9 @@ import com.tencent.mm.sdk.openapi.IWXAPIEventHandler;
 
 import common.pay.sdk.utils.AlipayTaskRunner;
 import common.pay.sdk.utils.CommonPaySdk;
-import common.pay.sdk.utils.Util;
+import wxapi.WXPayEntryActivity;
+
+import static common.pay.sdk.CommonPayConfig.REQ_PAY_RESULT_CODE_ERROR;
 
 /**
  * User: fee(1176610771@qq.com)
@@ -29,13 +31,14 @@ public class PayEntryActivity extends BaseActivity implements IWXAPIEventHandler
     private ICanPayOrderInfo curPayOrderInfo;
     /**
      * 是否微信支付事件响应过，该变量为解决微信版本6.3以前的一个坑
+     * deleted it by fee 2017-01-04,不需要该变量来解决微信支付SDK不响应的坑
      */
-    private boolean isWxPayEventResponced = false;
+//    private boolean isWxPayEventResponced = false;
     private boolean isAliPayOrder,isWxPayOrder;
     protected CommonPaySdk paySdk;
 
     public static void startPayActivity(Activity activity, ICanPayOrderInfo curPrePayOrderInfo, int requestCode) {
-        Intent startInten = new Intent(activity, PayEntryActivity.class);
+        Intent startInten = new Intent(activity, WXPayEntryActivity.class);
         startInten.putExtra(CommonPayConfig.INTENT_KEY_CUR_PAY_ORDER_INFO, curPrePayOrderInfo);
         activity.startActivityForResult(startInten, requestCode);
     }
@@ -98,10 +101,10 @@ public class PayEntryActivity extends BaseActivity implements IWXAPIEventHandler
                     startToPay("");
                 }
                 else{//不能进行支付
-                    int wxPayFailureCode = CommonPayConfig.RQE_PAY_RESULT_CODE_ERROR;
+                    int wxPayFailureCode = REQ_PAY_RESULT_CODE_ERROR;
                     String failureHintInfo = "订单支付失败";
                     if (!paySdk.isWxAppInstalled()) {
-                        wxPayFailureCode = CommonPayConfig.RQE_PAY_RESULT_CODE_NO_WX;
+                        wxPayFailureCode = CommonPayConfig.REQ_PAY_RESULT_CODE_NO_WX;
                         failureHintInfo += ",未安装微信APP.";
                     }
                     setWxPayResult(wxPayFailureCode, wxPayFailureCode + "");
@@ -128,12 +131,8 @@ public class PayEntryActivity extends BaseActivity implements IWXAPIEventHandler
     @Override
     protected void onRestart() {
         super.onRestart();
-        if (isWxPayOrder && !isWxPayEventResponced) {
-            //
+        if (isWxPayOrder) {
             e(null,"-->onRestart() wx sdk version: " + paySdk.wxPaySdkVersion());
-//            uiHintAgent.setOwnerVisibility(true);
-//            uiHintAgent.loadDialogDismiss();
-//            payFailure();
         }
     }
     @Override
@@ -152,7 +151,7 @@ public class PayEntryActivity extends BaseActivity implements IWXAPIEventHandler
      */
     @Override
     public void onResp(BaseResp resp) {
-        isWxPayEventResponced = true;
+//        isWxPayEventResponced = true;
         i(null, "-->onResp() errCode = " + resp.errCode + " error info: " + resp.errStr);
         int respType = resp.getType();
         switch (respType){
@@ -160,7 +159,7 @@ public class PayEntryActivity extends BaseActivity implements IWXAPIEventHandler
                 int respCode = resp.errCode;
                 uiHintAgent.loadDialogDismiss();
                 String payResultHintInfo = "";
-                int payResultCode = CommonPayConfig.RQE_PAY_RESULT_CODE_ERROR;
+                int payResultCode = REQ_PAY_RESULT_CODE_ERROR;
                 if (respCode == BaseResp.ErrCode.ERR_OK) {
                     //微信支付成功
                     payResultCode = RESULT_OK;
@@ -190,10 +189,11 @@ public class PayEntryActivity extends BaseActivity implements IWXAPIEventHandler
      * @param hintMsg
      */
     protected void startToPay(String hintMsg) {
-        if (Util.isEmpty(hintMsg)) {
-            hintMsg = "正在支付,请稍候...";
-        }
-        sweetLoading(hintMsg);
+//        if (Util.isEmpty(hintMsg)) {
+//            hintMsg = "正在支付,请稍候...";
+//        }
+//        sweetLoading(hintMsg);//删除这个loading类，以避免微信支付SDK不响应的坑导致一直loading的问题
+        uiHintAgent.sweetNormalHint("提示","是否支付完成？","支付取消","支付完成",DIALOG_IN_CASE_WITHOUT_PAY);
     }
 
 
@@ -212,7 +212,7 @@ public class PayEntryActivity extends BaseActivity implements IWXAPIEventHandler
                 CommonAlipayResult payResult = (CommonAlipayResult) msg.obj;
                 e(null, "--> handlerMessage() 支付宝响应结果: alipayResult = " + payResult);
                 boolean isPaySuc = payResult.isPayOk();
-                uiHintAgent.loadDialogDismiss();
+//                uiHintAgent.loadDialogDismiss();
                 uiHintAgent.setOwnerVisibility(true);
                 int alipayResultCode = payResult.getResultStatusCode();
                 setAliPayResult(isPaySuc ? RESULT_OK : alipayResultCode,payResult.getResultStatus());
@@ -252,11 +252,17 @@ public class PayEntryActivity extends BaseActivity implements IWXAPIEventHandler
         payFailure("订单支付失败");
     }
     protected static final int DIALOG_IN_CASE_PAY_RESULT = 0x11;
+    protected static final int DIALOG_IN_CASE_WITHOUT_PAY = DIALOG_IN_CASE_PAY_RESULT + 1;
+
     @Override
     protected void onClickInDialog(DialogInterface dialog, int which) {
         int dialogInCase = uiHintAgent.getHintDialogInCase();
         switch (dialogInCase) {
             case DIALOG_IN_CASE_PAY_RESULT:
+                finishSelf(true);
+                break;
+            case DIALOG_IN_CASE_WITHOUT_PAY:
+                setPayResult(CommonPayConfig.REQ_PAY_RESULT_CODE_ERROR, isWxPayOrder ? CommonPayConfig.PAY_MODE_WX : CommonPayConfig.PAY_MODE_ALIPAY, "");
                 finishSelf(true);
                 break;
             default:

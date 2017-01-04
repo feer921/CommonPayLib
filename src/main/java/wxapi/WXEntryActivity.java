@@ -1,4 +1,4 @@
-package common.pay.sdk.wxapi;
+package wxapi;
 
 import android.app.Activity;
 import android.os.Bundle;

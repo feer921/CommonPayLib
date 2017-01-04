@@ -52,11 +52,11 @@ public class CommonPayConfig {
     /**
      * 支付失败，没有安装微信
      */
-    public static final int RQE_PAY_RESULT_CODE_NO_WX = REQ_PAY_RESULT_CODE_OK - 1;
+    public static final int REQ_PAY_RESULT_CODE_NO_WX = REQ_PAY_RESULT_CODE_OK - 1;
     /**
      * 支付失败：一般错误
      */
-    public static final int RQE_PAY_RESULT_CODE_ERROR = RQE_PAY_RESULT_CODE_NO_WX - 1;
+    public static final int REQ_PAY_RESULT_CODE_ERROR = REQ_PAY_RESULT_CODE_NO_WX - 1;
 
 
 
