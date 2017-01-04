@@ -37,10 +37,28 @@ public class PayEntryActivity extends BaseActivity implements IWXAPIEventHandler
     private boolean isAliPayOrder,isWxPayOrder;
     protected CommonPaySdk paySdk;
 
+    /**
+     * @deprecated
+     * @param activity
+     * @param curPrePayOrderInfo
+     * @param requestCode
+     */
     public static void startPayActivity(Activity activity, ICanPayOrderInfo curPrePayOrderInfo, int requestCode) {
-        Intent startInten = new Intent(activity, WXPayEntryActivity.class);
+        startPayActivity(activity, curPrePayOrderInfo, requestCode, WXPayEntryActivity.class);
+    }
+
+    /**
+     * 为了解除微信支付SDK限制死集成微信支付的APP内一定要在包名内下建立一个wxapi包再在该包下建立WxPayEntryActivity类才能正常回调出响应
+     * 所以本库改为此方法来调起支付
+     * @param startActivity
+     * @param curPrePayOrderInfo
+     * @param requestCode
+     * @param localWxPayEntryActivityClass 即你的APP内的wxapi包下建立的WxPayEntryActivity(该类你什么也不用写就继承PayEntryActivity就行)
+     */
+    public static void startPayActivity(Activity startActivity, ICanPayOrderInfo curPrePayOrderInfo, int requestCode, Class<? extends PayEntryActivity> localWxPayEntryActivityClass) {
+        Intent startInten = new Intent(startActivity, localWxPayEntryActivityClass);
         startInten.putExtra(CommonPayConfig.INTENT_KEY_CUR_PAY_ORDER_INFO, curPrePayOrderInfo);
-        activity.startActivityForResult(startInten, requestCode);
+        startActivity.startActivityForResult(startInten, requestCode);
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
