@@ -5,17 +5,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
-
 import com.tencent.mm.sdk.constants.ConstantsAPI;
 import com.tencent.mm.sdk.modelbase.BaseReq;
 import com.tencent.mm.sdk.modelbase.BaseResp;
 import com.tencent.mm.sdk.modelpay.PayReq;
 import com.tencent.mm.sdk.openapi.IWXAPIEventHandler;
-
 import common.pay.sdk.utils.AlipayTaskRunner;
 import common.pay.sdk.utils.CommonPaySdk;
-import wxapi.WXPayEntryActivity;
-
 import static common.pay.sdk.CommonPayConfig.REQ_PAY_RESULT_CODE_ERROR;
 
 /**
@@ -38,21 +34,24 @@ public class PayEntryActivity extends BaseActivity implements IWXAPIEventHandler
     protected CommonPaySdk paySdk;
 
     /**
+     * 注：该启动支付的方法目前只支持(阿里支付宝支付)
+     * 微信支付时也可以调用，但由于微信支付SDK对响应回调的WxPayEntryActivity的包路径限制很死，所以本库的PayEntryActivity接收不到
+     * 微信支付SDK的响应回调，所以为了通用请直接调用{@linkplain #startPayActivity(Activity, ICanPayOrderInfo, int, Class)}
+     * @param activity 发起支付的当前Activity
+     * @param curPrePayOrderInfo  当前服务器返回的支付请求信息数据对象
+     * @param requestCode 区分请求的请求码
      * @deprecated
-     * @param activity
-     * @param curPrePayOrderInfo
-     * @param requestCode
      */
     public static void startPayActivity(Activity activity, ICanPayOrderInfo curPrePayOrderInfo, int requestCode) {
-        startPayActivity(activity, curPrePayOrderInfo, requestCode, WXPayEntryActivity.class);
+        startPayActivity(activity, curPrePayOrderInfo, requestCode, PayEntryActivity.class);
     }
 
     /**
      * 为了解除微信支付SDK限制死集成微信支付的APP内一定要在包名内下建立一个wxapi包再在该包下建立WxPayEntryActivity类才能正常回调出响应
      * 所以本库改为此方法来调起支付
-     * @param startActivity
-     * @param curPrePayOrderInfo
-     * @param requestCode
+     * @param startActivity 发起支付的当前Activity
+     * @param curPrePayOrderInfo 当前服务器返回的支付请求信息数据对象
+     * @param requestCode 区分请求的请求码
      * @param localWxPayEntryActivityClass 即你的APP内的wxapi包下建立的WxPayEntryActivity(该类你什么也不用写就继承PayEntryActivity就行)
      */
     public static void startPayActivity(Activity startActivity, ICanPayOrderInfo curPrePayOrderInfo, int requestCode, Class<? extends PayEntryActivity> localWxPayEntryActivityClass) {
