@@ -31,19 +31,6 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             />
-        <!-- 微信需要的组件 -->
-        <activity
-            android:name="wxapi.WXPayEntryActivity"
-            android:exported="true"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait"
-            />
-        <activity
-            android:name="wxapi.WXEntryActivity"
-            android:exported="true"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait"
-            />
     </application>
 
 </manifest>
